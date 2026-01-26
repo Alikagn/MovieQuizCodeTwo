@@ -1,0 +1,19 @@
+//
+//  Date+Extensions.swift
+//  MovieQuizCode
+//
+//  Created by Dmitry Batorevich on 14.11.2025.
+//
+import Foundation
+
+extension Date {
+    var dateTimeString: String { DateFormatter.defaultDateTime.string(from: self) }
+}
+
+private extension DateFormatter {
+    static let defaultDateTime: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.YYYY HH:mm"
+        return dateFormatter
+    }()
+}
