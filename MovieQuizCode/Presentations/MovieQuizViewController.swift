@@ -271,7 +271,7 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
     }
         
         alertPresenter?.makeAlert(alertModel: model)
-        activityIndicator.startAnimating()
+        //activityIndicator.startAnimating()
     }
     // delete
     /*
@@ -279,7 +279,7 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
         presenter.didReceiveNextQuestion(question: question)
     }
     */
-    private func changeStateButton(isEnabled: Bool) {
+    func changeStateButton(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
         noButton.isEnabled = isEnabled
     }
