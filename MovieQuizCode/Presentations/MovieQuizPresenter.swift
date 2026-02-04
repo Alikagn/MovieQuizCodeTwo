@@ -20,8 +20,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
+        
+        // Создаем AlertPresenter внутри Presenter
+        if let vc = viewController as? AlertPresenterDelegate {
+            self.alertPresenter = AlertPresenter(delegate: vc)
+        }
+        
         statisticService = StatisticService()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory = MockQuestionFactory(delegate: self)
+        //questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
@@ -64,13 +71,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         currentQuestionIndex = 0
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
-        //self.loadGameData()
     }
-    /*
-    func loadGameData() {
-        questionFactory?.loadData()
-    }
-    */
+    
     func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
@@ -123,7 +125,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         let givenAnswer = isYes
         proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
-   
+    
     private func proceedWithAnswer(isCorrect: Bool) {
         didAnswer(isCorrectAnswer: isCorrect)
         
@@ -158,22 +160,3 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
 }
-
-/*
- private func proceedToNextQuestionOrResults() {
-         if self.isLastQuestion() {
-             let text = correctAnswers == self.questionsAmount ?
-             "Поздравляем, вы ответили на 10 из 10!" :
-             "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
-
-             let viewModel = QuizResultsViewModel(
-                 title: "Этот раунд окончен!",
-                 text: text,
-                 buttonText: "Сыграть ещё раз")
-                 viewController?.show(quiz: viewModel)
-         } else {
-             self.switchToNextQuestion()
-             questionFactory?.requestNextQuestion()
-         }
-     }
- */

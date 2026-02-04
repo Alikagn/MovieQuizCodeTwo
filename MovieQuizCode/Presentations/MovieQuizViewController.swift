@@ -273,12 +273,7 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
         alertPresenter?.makeAlert(alertModel: model)
         //activityIndicator.startAnimating()
     }
-    // delete
-    /*
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-    */
+    
     func changeStateButton(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
         noButton.isEnabled = isEnabled
