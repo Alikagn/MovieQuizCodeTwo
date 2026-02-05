@@ -27,8 +27,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
         
         statisticService = StatisticService()
-        questionFactory = MockQuestionFactory(delegate: self)
-        //questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        //questionFactory = MockQuestionFactory(delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
@@ -70,7 +70,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func restartGame () {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionFactory?.requestNextQuestion()
+        //questionFactory?.requestNextQuestion()
+        loadGameData()
+    }
+    
+    func loadGameData() {
+        viewController?.showLoadingIndicator()
+        questionFactory?.loadData()
     }
     
     func switchToNextQuestion() {
@@ -150,7 +156,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 completion: { [weak self] in
                     guard let self else { return }
                     self.restartGame()
-                    questionFactory?.requestNextQuestion()
+                    //questionFactory?.requestNextQuestion()
                 })
             alertPresenter?.makeAlert(alertModel: alertModel)
         }

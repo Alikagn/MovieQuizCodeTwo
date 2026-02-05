@@ -262,17 +262,43 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
     }
     
     func showNetworkError(message: String) {
-        activityIndicator.stopAnimating()
+        self.hideLoadingIndicator()
         let model = AlertModel(title: "Ошибка",
                                message: message,
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
-            self.presenter.restartGame()
+            //self.presenter.restartGame()
+            self.showLoadingIndicator()
+            self.presenter.loadGameData()
     }
         
         alertPresenter?.makeAlert(alertModel: model)
         //activityIndicator.startAnimating()
     }
+    
+    /*
+     func showNetworkError(message: String) {
+             activityIndicator.stopAnimating()
+             
+             let alert = UIAlertController(
+                 title: "Ошибка",
+                 message: message,
+                 preferredStyle: .alert)
+             
+             let action = UIAlertAction(
+                 title: "Попробовать еще раз",
+                 style: .default) { [weak self] _ in
+                     // При нажатии кнопки:
+                     // 1. Показываем индикатор загрузки
+                     self?.showLoadingIndicator()
+                     // 2. Заново загружаем данные через presenter
+                     self?.presenter.loadGameData()
+                 }
+             
+             alert.addAction(action)
+             self.present(alert, animated: true)
+         }
+     */
     
     func changeStateButton(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
