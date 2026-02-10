@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQuizViewControllerProtocol {
+final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,*/ MovieQuizViewControllerProtocol {
     
     private var alertPresenter: AlertPresenterProtocol? // в презентер!
     private var presenter: MovieQuizPresenter!
@@ -74,6 +74,8 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
         imageView.backgroundColor = .black
         imageView.contentMode = .scaleAspectFill
         imageView.accessibilityIdentifier = "PosterImageView"
+        imageView.isAccessibilityElement = true
+        imageView.accessibilityLabel = "Постер фильма"
         imageView.layer.cornerRadius = 20
         imageView.clipsToBounds = true
         return imageView
@@ -148,10 +150,10 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
+        super.viewDidLoad()
         setupView()
         alertPresenter = AlertPresenter(delegate: self)
         presenter = MovieQuizPresenter(viewController: self)
-        super.viewDidLoad()
     }
     
     private func setupView() {
@@ -236,18 +238,20 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
         }
         
         alert.addAction(action)
-        
+        activityIndicator.color = .clear
         self.present(alert, animated: true, completion: nil)
     }
-  
+   /*
     func show(alert: UIAlertController) {
         self.present(alert, animated: true)
     }
-    
+    */
     func highlightImageBorder(isCorrectAnswer: Bool) {
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrectAnswer ? UIColor.green.cgColor : UIColor.red.cgColor
+        UIView.animate(withDuration: 0.3) {
+            self.imageView.layer.masksToBounds = true
+            self.imageView.layer.borderWidth = 8
+            self.imageView.layer.borderColor = isCorrectAnswer ? UIColor.green.cgColor : UIColor.red.cgColor
+        }
         imageView.layer.cornerRadius = 20
         activityIndicator.color = isCorrectAnswer ? .green : .red
     }
@@ -267,38 +271,12 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
                                message: message,
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self else { return }
-            //self.presenter.restartGame()
             self.showLoadingIndicator()
             self.presenter.loadGameData()
-    }
+        }
         
         alertPresenter?.makeAlert(alertModel: model)
-        //activityIndicator.startAnimating()
     }
-    
-    /*
-     func showNetworkError(message: String) {
-             activityIndicator.stopAnimating()
-             
-             let alert = UIAlertController(
-                 title: "Ошибка",
-                 message: message,
-                 preferredStyle: .alert)
-             
-             let action = UIAlertAction(
-                 title: "Попробовать еще раз",
-                 style: .default) { [weak self] _ in
-                     // При нажатии кнопки:
-                     // 1. Показываем индикатор загрузки
-                     self?.showLoadingIndicator()
-                     // 2. Заново загружаем данные через presenter
-                     self?.presenter.loadGameData()
-                 }
-             
-             alert.addAction(action)
-             self.present(alert, animated: true)
-         }
-     */
     
     func changeStateButton(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
@@ -306,66 +284,8 @@ class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQu
     }
 }
 
-/*
- Mock-данные
- 
- 
- Картинка: The Godfather
- Настоящий рейтинг: 9,2
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Dark Knight
- Настоящий рейтинг: 9
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Kill Bill
- Настоящий рейтинг: 8,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Avengers
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Deadpool
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Green Knight
- Настоящий рейтинг: 6,6
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Old
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: The Ice Age Adventures of Buck Wild
- Настоящий рейтинг: 4,3
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Tesla
- Настоящий рейтинг: 5,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Vivarium
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- */
+extension MovieQuizViewController: AlertPresenterDelegate {
+    func show(alert: UIAlertController) {
+        self.present(alert, animated: true)
+    }
+}

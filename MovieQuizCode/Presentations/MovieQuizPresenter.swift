@@ -16,18 +16,18 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private weak var viewController: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticServiceProtocol!
-    private var alertPresenter: AlertPresenterProtocol?
+   // private var alertPresenter: AlertPresenterProtocol?
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         // Создаем AlertPresenter внутри Presenter
-        if let vc = viewController as? AlertPresenterDelegate {
-            self.alertPresenter = AlertPresenter(delegate: vc)
-        }
+      //  if let vc = viewController as? AlertPresenterDelegate {
+      //      self.alertPresenter = AlertPresenter(delegate: vc)
+      //  }
         
         statisticService = StatisticService()
-        //questionFactory = MockQuestionFactory(delegate: self)
+       // questionFactory = MockQuestionFactory(delegate: self)
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
@@ -139,7 +139,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self else { return }
-            viewController?.hideLoadingIndicator()
             self.proceedToNextQuestionOrResults()
             viewController?.changeStateButton(isEnabled: true)
             viewController?.hideLoadingIndicator()
@@ -149,6 +148,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             let text = makeResultsMessage()
+            
+            let result = QuizResultsViewModel(
+                            title: "Этот раунд окончен!",
+                            text: text,
+                            buttonText: "Сыграть ещё раз"
+                        )
+                        
+                        DispatchQueue.main.async { [weak self] in
+                            self?.viewController?.show(quiz: result)
+                        }
+           /*
             let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
                 message: text,
@@ -159,6 +169,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                     //questionFactory?.requestNextQuestion()
                 })
             alertPresenter?.makeAlert(alertModel: alertModel)
+            */
         }
         else {
             self.switchToNextQuestion()
