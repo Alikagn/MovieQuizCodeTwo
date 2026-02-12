@@ -7,9 +7,7 @@
 
 import UIKit
 
-final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,*/ MovieQuizViewControllerProtocol {
-    
-    private var alertPresenter: AlertPresenterProtocol? // в презентер!
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     private var presenter: MovieQuizPresenter!
     
     private lazy var questionLabel: UILabel = {
@@ -143,7 +141,6 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
         stack.addArrangedSubview(imageView)
         stack.addArrangedSubview(ratingContainerView) // используем контейнер вместо ratingLabel
         stack.addArrangedSubview(buttonsStackView)
-        // stack.addArrangedSubview(activityIndicator)
         return stack
     }()
     
@@ -152,7 +149,6 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        alertPresenter = AlertPresenter(delegate: self)
         presenter = MovieQuizPresenter(viewController: self)
     }
     
@@ -165,7 +161,7 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
     
     private func addSubviews() {
         // Добавляем все элементы на view
-        [verticalStackView /*topStackView, imageView, ratingLabel, buttonsStackView*/].forEach {
+        [verticalStackView].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -227,25 +223,15 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
     func show(quiz result: QuizResultsViewModel) {
         let message = presenter.makeResultsMessage()
         
-        let alert = UIAlertController(
+        showAlert(
             title: result.title,
             message: message,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self else { return }
-            self.presenter.restartGame()
+            buttonText: result.buttonText
+        ) { [weak self] in
+            self?.presenter.restartGame()
         }
-        
-        alert.addAction(action)
-        activityIndicator.color = .clear
-        self.present(alert, animated: true, completion: nil)
     }
-   /*
-    func show(alert: UIAlertController) {
-        self.present(alert, animated: true)
-    }
-    */
+   
     func highlightImageBorder(isCorrectAnswer: Bool) {
         UIView.animate(withDuration: 0.3) {
             self.imageView.layer.masksToBounds = true
@@ -263,20 +249,21 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
     func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
         imageView.layer.borderColor = UIColor.clear.cgColor
+        activityIndicator.color = .gray
     }
     
     func showNetworkError(message: String) {
-        self.hideLoadingIndicator()
-        let model = AlertModel(title: "Ошибка",
-                               message: message,
-                               buttonText: "Попробовать еще раз") { [weak self] in
-            guard let self else { return }
-            self.showLoadingIndicator()
-            self.presenter.loadGameData()
+            self.hideLoadingIndicator()
+            
+            showAlert(
+                title: "Ошибка",
+                message: message,
+                buttonText: "Попробовать еще раз"
+            ) { [weak self] in
+                self?.showLoadingIndicator()
+                self?.presenter.loadGameData()
+            }
         }
-        
-        alertPresenter?.makeAlert(alertModel: model)
-    }
     
     func changeStateButton(isEnabled: Bool) {
         yesButton.isEnabled = isEnabled
@@ -284,8 +271,27 @@ final class MovieQuizViewController: UIViewController, /*AlertPresenterDelegate,
     }
 }
 
-extension MovieQuizViewController: AlertPresenterDelegate {
-    func show(alert: UIAlertController) {
-        self.present(alert, animated: true)
+extension UIViewController {
+    func showAlert(
+        title: String,
+        message: String,
+        buttonText: String,
+        completion: (() -> Void)? = nil
+    ) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let action = UIAlertAction(
+            title: buttonText,
+            style: .default
+        ) { _ in
+            completion?()
+        }
+        
+        alert.addAction(action)
+        present(alert, animated: true)
     }
 }

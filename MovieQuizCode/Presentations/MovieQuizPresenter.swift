@@ -16,19 +16,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private weak var viewController: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticServiceProtocol!
-   // private var alertPresenter: AlertPresenterProtocol?
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
-        
-        // Создаем AlertPresenter внутри Presenter
-      //  if let vc = viewController as? AlertPresenterDelegate {
-      //      self.alertPresenter = AlertPresenter(delegate: vc)
-      //  }
-        
         statisticService = StatisticService()
-       // questionFactory = MockQuestionFactory(delegate: self)
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory = MockQuestionFactory(delegate: self)
+        //questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
@@ -66,11 +59,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    //
     func restartGame () {
         currentQuestionIndex = 0
         correctAnswers = 0
-        //questionFactory?.requestNextQuestion()
         loadGameData()
     }
     
@@ -150,26 +141,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             let text = makeResultsMessage()
             
             let result = QuizResultsViewModel(
-                            title: "Этот раунд окончен!",
-                            text: text,
-                            buttonText: "Сыграть ещё раз"
-                        )
-                        
-                        DispatchQueue.main.async { [weak self] in
-                            self?.viewController?.show(quiz: result)
-                        }
-           /*
-            let alertModel = AlertModel(
                 title: "Этот раунд окончен!",
-                message: text,
-                buttonText: "Сыграть ещё раз",
-                completion: { [weak self] in
-                    guard let self else { return }
-                    self.restartGame()
-                    //questionFactory?.requestNextQuestion()
-                })
-            alertPresenter?.makeAlert(alertModel: alertModel)
-            */
+                text: text,
+                buttonText: "Сыграть ещё раз"
+            )
+            DispatchQueue.main.async { [weak self] in
+                self?.viewController?.show(quiz: result)
+            }
         }
         else {
             self.switchToNextQuestion()
